@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173b2a">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Stableford Buddy</title>
+<style>
+:root{--green:#173b2a;--light:#f4f6f3;--card:#fff;--text:#18231d;--muted:#657268;--line:#d9dfda;--accent:#d9a441}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--light);color:var(--text)}
+header{background:var(--green);color:#fff;padding:18px 16px 16px;position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:23px}header p{margin:3px 0 0;opacity:.8;font-size:13px}
+main{max-width:720px;margin:auto;padding:14px 12px 90px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px #00000008}
+h2{font-size:17px;margin:0 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:12px;color:var(--muted);font-weight:700;display:block;margin-bottom:5px}input,button,select{font:inherit}input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff}
+button{border:0;border-radius:11px;padding:11px 14px;font-weight:750;cursor:pointer}.primary{background:var(--green);color:#fff}.secondary{background:#e8eee9;color:var(--green)}.danger{background:#fbe8e8;color:#9b2929}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+.players{display:grid;gap:8px}.playerline{display:grid;grid-template-columns:1fr 105px 38px;gap:7px;align-items:end}
+.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:12px}.tabs button{white-space:nowrap}.tabs .active{background:var(--green);color:#fff}
+.hole{display:grid;grid-template-columns:38px 44px 48px 1fr 64px;gap:6px;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}
+.hole:last-child{border:0}.hole .num{font-weight:800}.hole small{color:var(--muted);font-size:11px}.shots{padding:9px 5px;text-align:center}
+.points{font-weight:850;text-align:center}.zero{color:#b22}.gold{color:#9a6900}
+.scorecards{display:grid;gap:8px}.scorecard{display:flex;justify-content:space-between;align-items:center;background:#f8faf8;border-radius:12px;padding:12px}.scorecard strong{font-size:22px}
+.hidden{display:none}.muted{color:var(--muted);font-size:13px}.total{font-size:30px;font-weight:900}.footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:9px 12px;z-index:4}.footer button{width:100%;max-width:720px;display:block;margin:auto}
+.badge{display:inline-block;background:#e8eee9;color:var(--green);border-radius:20px;padding:4px 8px;font-size:11px;font-weight:800}
+@media(min-width:600px){.hole{grid-template-columns:50px 55px 60px 1fr 80px}}
+</style>
+</head>
+<body>
+<header><h1>🏌️ Stableford Buddy</h1><p>Simple golf Stableford scoring</p></header>
+<main>
+<section id="setup">
+<div class="card">
+<h2>Players</h2>
+<div id="players" class="players"></div>
+<div style="margin-top:10px" class="row">
+<button class="secondary" onclick="addPlayer()" id="addBtn">+ Add player</button>
+<button class="primary" onclick="startRound()">Start round</button>
+</div>
+<p class="muted">Enter each player's Handicap Index. The calculator uses that handicap for the 18-hole round.</p>
+</div>
+<div class="card">
+<h2>Course</h2>
+<div class="grid">
+<div><label>Course name</label><input id="courseName" placeholder="e.g. My Golf Club"></div>
+<div><label>Course rating / notes</label><input id="courseNote" placeholder="Optional"></div>
+</div>
+<p class="muted">Set the par and Stroke Index for each hole below. Default values are editable.</p>
+<div id="courseSetup"></div>
+</div>
+</section>
+
+<section id="round" class="hidden">
+<div class="card">
+<div class="row"><div><h2 id="roundTitle">Round</h2><span class="badge" id="holeBadge">Hole 1</span></div><button class="secondary" onclick="showSetup()">Edit setup</button></div>
+</div>
+<div class="tabs" id="playerTabs"></div>
+<div class="card">
+<div id="scoreInputs"></div>
+</div>
+<div class="card">
+<h2>Leaderboard</h2><div id="leaderboard" class="scorecards"></div>
+</div>
+</section>
+</main>
+<div class="footer hidden" id="footer"><button class="primary" onclick="nextHole()" id="nextBtn">Next hole →</button></div>
+<script>
+const defaults=[
+[4,8],[4,14],[5,2],[3,16],[4,10],[4,6],[3,18],[5,4],[4,12],
+[4,7],[4,1],[3,17],[5,5],[4,11],[4,3],[3,15],[5,9],[4,13]
+];
+let state={players:[{name:"Player 1",hcp:18}],course:defaults.map(x=>({par:x[0],si:x[1],scores:{}})),active:0,hole:0};
+
+function save(){localStorage.setItem("stablefordBuddy",JSON.stringify(state))}
+function load(){try{let x=JSON.parse(localStorage.getItem("stablefordBuddy"));if(x)state=x}catch(e){}}
+function renderPlayers(){
+ const el=document.getElementById("players");el.innerHTML="";
+ state.players.forEach((p,i)=>{
+  const d=document.createElement("div");d.className="playerline";
+  d.innerHTML=`<div><label>Player ${i+1}</label><input value="${esc(p.name)}" oninput="state.players[${i}].name=this.value"></div>
+  <div><label>Handicap Index</label><input type="number" min="-10" max="54" step="0.1" value="${p.hcp}" oninput="state.players[${i}].hcp=Number(this.value)"></div>
+  <button class="danger" onclick="removePlayer(${i})">×</button>`;
+  el.appendChild(d);
+ });
+ document.getElementById("addBtn").disabled=state.players.length>=4;
+}
+function addPlayer(){if(state.players.length<4){state.players.push({name:"Player "+(state.players.length+1),hcp:18});renderPlayers()}}
+function removePlayer(i){if(state.players.length>1){state.players.splice(i,1);renderPlayers()}}
+function renderCourseSetup(){
+ const el=document.getElementById("courseSetup");el.innerHTML="";
+ state.course.forEach((h,i)=>{
+  const d=document.createElement("div");d.className="hole";
+  d.innerHTML=`<div class="num">${i+1}</div><div><small>Par</small><input class="shots" type="number" min="3" max="6" value="${h.par}" onchange="state.course[${i}].par=Number(this.value)"></div>
+  <div><small>SI</small><input class="shots" type="number" min="1" max="18" value="${h.si}" onchange="state.course[${i}].si=Number(this.value)"></div><div></div><div></div>`;
+  el.appendChild(d);
+ });
+}
+function startRound(){save();document.getElementById("setup").classList.add("hidden");document.getElementById("round").classList.remove("hidden");document.getElementById("footer").classList.remove("hidden");renderRound()}
+function showSetup(){document.getElementById("round").classList.add("hidden");document.getElementById("footer").classList.add("hidden");document.getElementById("setup").classList.remove("hidden");renderPlayers();renderCourseSetup()}
+function allowance(hcp,si){
+ let whole=Math.floor(hcp), rem=hcp-whole;
+ let strokes=whole>=0 ? Math.floor(whole/18)+(si<=whole%18?1:0) : Math.ceil(whole/18)+(si<=((-whole)%18)?-1:0);
+ return strokes;
+}
+function stableford(par,net){let diff=par-net;return diff>=2?4:diff===1?3:diff===0?2:diff===-1?1:0}
+function playerTotal(pi){return state.course.reduce((s,h)=>{let sh=h.scores[pi];if(sh==null||sh==="")return s;return s+stableford(h.par,Number(sh)-allowance(state.players[pi].hcp,h.si))},0)}
+function renderRound(){
+ document.getElementById("roundTitle").textContent=document.getElementById("courseName").value||"Stableford Buddy";
+ document.getElementById("holeBadge").textContent=`Hole ${state.hole+1} of 18`;
+ const tabs=document.getElementById("playerTabs");tabs.innerHTML="";
+ state.players.forEach((p,i)=>{let b=document.createElement("button");b.textContent=p.name||`Player ${i+1}`;b.className=i===state.active?"active":"";b.onclick=()=>{state.active=i;renderRound()};tabs.appendChild(b)});
+ const pi=state.active, h=state.course[state.hole], el=document.getElementById("scoreInputs");
+ let rows=state.course.map((x,i)=>{let sh=x.scores[pi]??"";let pts=sh===""?"":stableford(x.par,Number(sh)-allowance(state.players[pi].hcp,x.si));return `<div class="hole"><div class="num">${i+1}</div><div><small>Par</small><b>${x.par}</b></div><div><small>SI</small><b>${x.si}</b></div><div><small>Shots</small><input class="shots" type="number" min="1" max="20" inputmode="numeric" value="${sh}" onchange="setScore(${i},this.value)"></div><div class="points ${pts===0?'zero':''}">${pts===""?"—":pts+" pts"}</div></div>`}).join("");
+ el.innerHTML=rows;
+ setTimeout(()=>{let inputs=el.querySelectorAll("input");inputs[state.hole]?.focus()},50);
+ document.getElementById("nextBtn").textContent=state.hole===17?"Finish round →":"Next hole →";
+ renderLeaderboard();save();
+}
+function setScore(i,v){state.course[i].scores[state.active]=v===""?"":Number(v);save();renderRound()}
+function renderLeaderboard(){
+ let arr=state.players.map((p,i)=>({name:p.name||`Player ${i+1}`,total:playerTotal(i),hcp:p.hcp})).sort((a,b)=>b.total-a.total);
+ document.getElementById("leaderboard").innerHTML=arr.map((x,i)=>`<div class="scorecard"><div><b>${i+1}. ${esc(x.name)}</b><div class="muted">Handicap ${x.hcp}</div></div><strong>${x.total}</strong></div>`).join("");
+}
+function nextHole(){if(state.hole<17){state.hole++;renderRound()}else{alert("Round complete! Check the leaderboard for final Stableford scores.");renderRound()}}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+load();renderPlayers();renderCourseSetup();
+</script>
+</body></html>
