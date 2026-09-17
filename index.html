@@ -1,98 +1,54 @@
-<!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#173b2a"><link rel="manifest" href="manifest.webmanifest">
-<title>Stableford Buddy v3</title>
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b6b3a"><link rel="manifest" href="./manifest.webmanifest?v=4.0.0">
+<title>Stableford Buddy v4</title>
 <style>
-:root{--g:#173b2a;--bg:#f2f5f2;--card:#fff;--txt:#18231d;--muted:#68736c;--line:#d8dfd9;--red:#a52b2b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif}
-header{background:var(--g);color:#fff;padding:16px;position:sticky;top:0;z-index:5}header h1{margin:0;font-size:22px}header p{margin:2px 0 0;font-size:12px;opacity:.8}
-main{max-width:950px;margin:auto;padding:12px 10px 80px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:11px;box-shadow:0 2px 8px #00000008}
-h2{font-size:17px;margin:0 0 10px}.muted{font-size:12px;color:var(--muted)}label{display:block;font-size:11px;color:var(--muted);font-weight:800;margin-bottom:4px}
-input,select,button{font:inherit}input,select{width:100%;padding:9px;border:1px solid var(--line);border-radius:9px;background:#fff}
-button{border:0;border-radius:10px;padding:10px 13px;font-weight:800}.primary{background:var(--g);color:#fff}.secondary{background:#e7eee9;color:var(--g)}.danger{background:#fae8e8;color:var(--red)}
-.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.players{display:grid;gap:8px}.player{display:grid;grid-template-columns:1fr 95px 36px;gap:7px;align-items:end}
-.course-list{display:grid;gap:7px}.course{display:flex;justify-content:space-between;align-items:center;padding:9px;border:1px solid var(--line);border-radius:10px}
-.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:10px}.tabs button{white-space:nowrap}.tabs .active{background:var(--g);color:#fff}
-.scorewrap{overflow-x:auto}.scoretable{width:100%;min-width:720px;border-collapse:collapse;font-size:12px}.scoretable th,.scoretable td{border-bottom:1px solid var(--line);padding:7px 5px;text-align:center}.scoretable th{font-size:10px;color:var(--muted);background:#f7f9f7}.scoretable .left{text-align:left}.scoretable input{width:46px;text-align:center;padding:7px 2px}.pts{font-weight:900}.zero{color:var(--red)}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.kpi{background:#f7f9f7;border-radius:10px;padding:8px;text-align:center}.kpi b{display:block;font-size:19px}.kpi span{font-size:9px;color:var(--muted)}
-.leader-row{background:#f7f9f7;border-radius:10px;padding:9px;margin-bottom:7px;display:flex;justify-content:space-between}.leader-row strong{font-size:21px}
-.hidden{display:none}.footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:8px 10px;z-index:4}.footer .row{max-width:950px;margin:auto}
-</style></head>
-<body>
-<header><h1>🏌️ Stableford Buddy v3</h1><p>Quick golf scoring • WHS-aware • saved courses</p></header>
-<main>
-<section id="setup">
-<div class="card"><h2>Saved courses</h2><div id="courses" class="course-list"></div>
-<div class="row" style="margin-top:8px"><button class="secondary" onclick="newCourse()">+ New course</button><button class="danger" onclick="deleteCourse()">Delete selected</button></div>
-<p class="muted">Courses are stored on this device, so your local course only needs entering once.</p></div>
-
-<div class="card"><h2>Course & tee</h2><div class="grid">
-<div><label>Course name</label><input id="cname"></div><div><label>Tee</label><input id="tee"></div>
-<div><label>Course Rating</label><input id="cr" type="number" step=".1"></div><div><label>Slope Rating</label><input id="slope" type="number"></div>
-<div><label>Par</label><input id="par" type="number"></div><div><label>Playing handicap allowance</label>
-<select id="allow"><option value="95">95% — individual Stableford</option><option value="100">100% — custom</option><option value="90">90% — custom</option><option value="85">85% — custom</option></select></div>
-</div><button class="primary" style="margin-top:9px;width:100%" onclick="saveCourse()">Save course</button></div>
-
-<div class="card"><h2>Players</h2><div id="players" class="players"></div>
-<div class="row" style="margin-top:8px"><button class="secondary" onclick="addPlayer()" id="add">+ Add player</button><button class="primary" onclick="start()">Start round</button></div></div>
-
-<div class="card"><h2>Hole data</h2><div id="holes" class="scorewrap"></div><p class="muted">Par and Stroke Index are saved with the selected course.</p></div>
-</section>
-
-<section id="round" class="hidden">
-<div class="card"><div class="row"><div><h2 id="title"></h2><div id="sub" class="muted"></div></div><button class="secondary" onclick="backSetup()">Edit setup</button></div></div>
-<div class="tabs" id="tabs"></div>
-<div class="card"><div id="summary"></div></div>
-<div class="card"><h2>Scorecard</h2><div class="scorewrap"><table class="scoretable"><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
-<p class="muted">Enter gross shots. Net score, strokes received and Stableford points are calculated automatically.</p></div>
-<div class="card"><h2>Live leaderboard</h2><div id="leaderboard"></div></div>
-</section>
-</main>
-<div id="footer" class="footer hidden"><div class="row"><button class="secondary" onclick="clearScores()">Clear scores</button><button class="primary" onclick="finish()">Finish round</button></div></div>
-
+:root{--g:#0b6b3a;--bg:#f3f7f4;--bd:#d7e1da}*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:#17221b}
+header{background:var(--g);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:2}
+h1{font-size:21px;margin:0}.v{font-size:12px;opacity:.8}.ct{font-size:13px;opacity:.9}
+.wrap{max-width:1100px;margin:auto;padding:10px}.card{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:10px}
+h2{font-size:16px;margin:0 0 9px}.grid,.players{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+label{font-size:12px;font-weight:700;color:#536158}input{width:100%;padding:8px;border:1px solid #c8d4cc;border-radius:9px}
+button{font:inherit;border:0;border-radius:9px;padding:8px 11px;background:var(--g);color:#fff;font-weight:700}
+button.secondary{background:#e8efea;color:#173524}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:8px}.tab{white-space:nowrap;background:#e5eee8;color:#173524}.tab.active{background:var(--g);color:#fff}
+.tableWrap{overflow-x:auto}.scoreTable{width:100%;border-collapse:collapse;min-width:680px}
+.scoreTable th,.scoreTable td{border-bottom:1px solid var(--bd);padding:7px;text-align:center}.scoreTable th{background:#eef4ef;font-size:12px}
+.scoreTable td:first-child,.scoreTable th:first-child{text-align:left}.scoreTable input{width:55px;text-align:center}
+.total{font-size:18px;font-weight:800}.leader{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)}.muted{font-size:12px;color:#68756d}
+.badge{display:inline-block;background:#e8efea;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700;margin:2px}
+@media(max-width:700px){.grid,.players{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<header><h1>🏌️ Stableford Buddy <span class="v">v4</span></h1><div class="ct">Nevill Golf Club · White Tee · Par 70 · CR 71.2 · Slope 125</div></header>
+<div class="wrap">
+<div class="card"><h2>Players</h2><div class="players" id="players"></div></div>
+<div class="card"><h2>Course</h2><span class="badge">Nevill Golf Club</span><span class="badge">White Tee</span><span class="badge">Par 70</span><span class="badge">CR 71.2</span><span class="badge">Slope 125</span><span class="badge">95% allowance</span>
+<div class="actions"><button class="secondary" onclick="newRound()">New Round / Clear Scores</button><button class="secondary" onclick="resetPlayers()">Reset Players</button></div></div>
+<div class="card"><h2>18-hole scorecard</h2><div class="tabs" id="tabs"></div><div id="scoreArea"></div></div>
+<div class="card"><h2>Leaderboard</h2><div id="leaderboard"></div></div>
+<div class="card muted"><strong>Stableford Buddy v4</strong> · Customised for Nevill Golf Club White Tee. No round history is stored.</div>
+</div>
 <script>
-const DEF=[[4,8],[4,14],[5,2],[3,16],[4,10],[4,6],[3,18],[5,4],[4,12],[4,7],[4,1],[3,17],[5,5],[4,11],[4,3],[3,15],[5,9],[4,13]];
-let a={courses:[],selected:null,players:[{name:"Player 1",hcp:18}],scores:{},active:0};
-function uid(){return"c"+Date.now()+Math.random().toString(36).slice(2)}
-function makeCourse(){return{id:uid(),name:"My Local Course",tee:"White",cr:72,slope:113,par:72,allow:95,holes:DEF.map(x=>({par:x[0],si:x[1]}))}}
-function course(){return a.courses.find(x=>x.id===a.selected)||a.courses[0]}
-function save(){localStorage.setItem("stablefordBuddyV3",JSON.stringify(a))}
-function load(){try{a=JSON.parse(localStorage.getItem("stablefordBuddyV3"))||a}catch(e){}if(!a.courses.length){let c=makeCourse();a.courses=[c];a.selected=c.id}}
-function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function renderCourses(){document.getElementById("courses").innerHTML=a.courses.map(c=>`<div class="course"><div><b>${esc(c.name)}</b><div class="muted">${esc(c.tee)} • Par ${c.par} • Slope ${c.slope}</div></div><button class="${c.id===a.selected?"primary":"secondary"}" onclick="selectCourse('${c.id}')">${c.id===a.selected?"Selected":"Use"}</button></div>`).join("")}
-function selectCourse(id){a.selected=id;fillCourse();renderCourses();renderHoles();save()}
-function fillCourse(){let c=course();document.getElementById("cname").value=c.name;document.getElementById("tee").value=c.tee;document.getElementById("cr").value=c.cr;document.getElementById("slope").value=c.slope;document.getElementById("par").value=c.par;document.getElementById("allow").value=c.allow||95}
-function collect(){let c=course();c.name=document.getElementById("cname").value||"Unnamed Course";c.tee=document.getElementById("tee").value||"Default";c.cr=+document.getElementById("cr").value||c.par;c.slope=+document.getElementById("slope").value||113;c.par=+document.getElementById("par").value||72;c.allow=+document.getElementById("allow").value||95}
-function saveCourse(){collect();save();renderCourses();alert("Course saved on this phone.")}
-function newCourse(){let c=makeCourse();c.name="New Course";a.courses.push(c);a.selected=c.id;fillCourse();renderCourses();renderHoles();save()}
-function deleteCourse(){if(a.courses.length<2)return alert("Keep at least one course.");if(confirm("Delete "+course().name+"?")){a.courses=a.courses.filter(x=>x.id!==a.selected);a.selected=a.courses[0].id;fillCourse();renderCourses();renderHoles();save()}}
-function renderHoles(){let c=course();document.getElementById("holes").innerHTML=`<table class="scoretable"><thead><tr><th class="left">Hole</th>${c.holes.map((_,i)=>`<th>${i+1}</th>`).join("")}</tr></thead><tbody><tr><td class="left"><b>Par</b></td>${c.holes.map((h,i)=>`<td><input type="number" min="3" max="6" value="${h.par}" onchange="course().holes[${i}].par=+this.value;save()"></td>`).join("")}</tr><tr><td class="left"><b>SI</b></td>${c.holes.map((h,i)=>`<td><input type="number" min="1" max="18" value="${h.si}" onchange="course().holes[${i}].si=+this.value;save()"></td>`).join("")}</tr></tbody></table>`}
-function renderPlayers(){document.getElementById("players").innerHTML=a.players.map((p,i)=>`<div class="player"><div><label>Player ${i+1}</label><input value="${esc(p.name)}" oninput="a.players[${i}].name=this.value"></div><div><label>Handicap Index</label><input type="number" min="-10" max="54" step=".1" value="${p.hcp}" oninput="a.players[${i}].hcp=+this.value"></div><button class="danger" onclick="removePlayer(${i})">×</button></div>`).join("");document.getElementById("add").disabled=a.players.length>=4}
-function addPlayer(){if(a.players.length<4){a.players.push({name:"Player "+(a.players.length+1),hcp:18});renderPlayers()}}
-function removePlayer(i){if(a.players.length>1){a.players.splice(i,1);renderPlayers()}}
-function courseHandicap(hi){let c=course();return Math.round(hi*c.slope/113+(c.cr-c.par))}
-function playingHandicap(hi){return Math.round(courseHandicap(hi)*course().allow/100)}
-function strokes(h,si){if(h>=0){let q=Math.floor(h/18),r=h%18;return q+(si<=r?1:0)}return si<=Math.abs(h)?-1:0}
-function net(g,h,si){return g-strokes(h,si)}
-function points(par,n){let d=par-n;return d>=2?4:d===1?3:d===0?2:d===-1?1:0}
-function total(pi){let h=playingHandicap(a.players[pi].hcp),s=0;course().holes.forEach((x,i)=>{let g=a.scores[pi]?.[i];if(g!==undefined&&g!=="")s+=points(x.par,net(+g,h,x.si))});return s}
-function start(){collect();a.scores={};a.players.forEach((_,i)=>a.scores[i]={});a.active=0;save();document.getElementById("setup").classList.add("hidden");document.getElementById("round").classList.remove("hidden");document.getElementById("footer").classList.remove("hidden");renderRound()}
-function backSetup(){document.getElementById("round").classList.add("hidden");document.getElementById("footer").classList.add("hidden");document.getElementById("setup").classList.remove("hidden");fillCourse();renderCourses();renderPlayers();renderHoles()}
-function setScore(pi,i,v){a.scores[pi][i]=v===""?"":+v;save();renderRound()}
-function renderRound(){let c=course(),p=a.players[a.active],C=courseHandicap(p.hcp),P=playingHandicap(p.hcp);document.getElementById("title").textContent=c.name+" • "+c.tee;document.getElementById("sub").textContent=`Par ${c.par} • CR ${c.cr} • Slope ${c.slope} • ${c.allow}% allowance`;
-document.getElementById("tabs").innerHTML=a.players.map((x,i)=>`<button class="${i===a.active?"active":""}" onclick="a.active=${i};renderRound()">${esc(x.name||"Player "+(i+1))}</button>`).join("");
-document.getElementById("summary").innerHTML=`<div class="kpis"><div class="kpi"><b>${p.hcp}</b><span>Handicap Index</span></div><div class="kpi"><b>${C}</b><span>Course Handicap</span></div><div class="kpi"><b>${P}</b><span>Playing Handicap</span></div><div class="kpi"><b>${total(a.active)}</b><span>Stableford</span></div></div>`;
-document.getElementById("thead").innerHTML=`<tr><th class="left">Hole</th>${c.holes.map((_,i)=>`<th>${i+1}</th>`).join("")}</tr>`;
-let rows=[];rows.push(`<tr><td class="left"><b>Par</b></td>${c.holes.map(x=>`<td>${x.par}</td>`).join("")}</tr>`);rows.push(`<tr><td class="left"><b>SI</b></td>${c.holes.map(x=>`<td>${x.si}</td>`).join("")}</tr>`);
-rows.push(`<tr><td class="left"><b>Strokes</b></td>${c.holes.map(x=>`<td>${strokes(P,x.si)}</td>`).join("")}</tr>`);
-rows.push(`<tr><td class="left"><b>Gross</b></td>${c.holes.map((x,i)=>`<td><input inputmode="numeric" type="number" min="1" max="20" value="${a.scores[a.active]?.[i]??""}" onchange="setScore(${a.active},${i},this.value)"></td>`).join("")}</tr>`);
-rows.push(`<tr><td class="left"><b>Net</b></td>${c.holes.map((x,i)=>{let g=a.scores[a.active]?.[i];return`<td>${g==null||g===""?"—":net(+g,P,x.si)}</td>`}).join("")}</tr>`);
-rows.push(`<tr><td class="left"><b>Points</b></td>${c.holes.map((x,i)=>{let g=a.scores[a.active]?.[i];let v=g==null||g===""?null:points(x.par,net(+g,P,x.si));return`<td class="pts ${v===0?"zero":""}">${v==null?"—":v}</td>`}).join("")}</tr>`);
-document.getElementById("tbody").innerHTML=rows.join("");renderLeaderboard()}
-function renderLeaderboard(){let r=a.players.map((p,i)=>({n:p.name||"Player "+(i+1),t:total(i),ph:playingHandicap(p.hcp)})).sort((x,y)=>y.t-x.t);document.getElementById("leaderboard").innerHTML=r.map((x,i)=>`<div class="leader-row"><div><b>${i+1}. ${esc(x.n)}</b><div class="muted">Playing handicap ${x.ph}</div></div><strong>${x.t}</strong></div>`).join("")}
-function clearScores(){if(confirm("Clear all scores for this round?")){a.scores={};a.players.forEach((_,i)=>a.scores[i]={});save();renderRound()}}
-function finish(){alert("Round complete. Final scores are shown in the leaderboard.")}
-load();fillCourse();renderCourses();renderPlayers();renderHoles();
+const VERSION="4.0.0",KEY="stableford_buddy_nevill_v4";
+const COURSE={name:"Nevill Golf Club",tee:"White",cr:71.2,slope:125,par:70,allowance:95,holes:[{"par": 4, "si": 9}, {"par": 5, "si": 13}, {"par": 4, "si": 5}, {"par": 3, "si": 15}, {"par": 4, "si": 3}, {"par": 3, "si": 11}, {"par": 4, "si": 1}, {"par": 4, "si": 7}, {"par": 3, "si": 17}, {"par": 5, "si": 18}, {"par": 5, "si": 8}, {"par": 3, "si": 16}, {"par": 4, "si": 4}, {"par": 4, "si": 6}, {"par": 3, "si": 12}, {"par": 4, "si": 2}, {"par": 4, "si": 14}, {"par": 4, "si": 7}]};
+let state=JSON.parse(localStorage.getItem(KEY)||"null")||{players:[{name:"Player 1",hi:18},{name:"Player 2",hi:18},{name:"Player 3",hi:18},{name:"Player 4",hi:18}],active:0,scores:Array.from({length:4},()=>Array(18).fill(""))};
+const save=()=>localStorage.setItem(KEY,JSON.stringify(state));
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function renderPlayers(){players.innerHTML=state.players.map((p,i)=>`<div><label>Player ${i+1}</label><input value="${esc(p.name)}" oninput="state.players[${i}].name=this.value;save();renderTabs();renderLeaderboard()"><label>Handicap Index</label><input type="number" step=".1" value="${p.hi}" oninput="state.players[${i}].hi=parseFloat(this.value)||0;save();renderScore();renderLeaderboard()"></div>`).join("")}
+function renderTabs(){tabs.innerHTML=state.players.map((p,i)=>`<button class="tab ${i===state.active?"active":""}" onclick="state.active=${i};save();renderTabs();renderScore()">${esc(p.name||"Player "+(i+1))}</button>`).join("")}
+function ch(hi){return Math.round(hi*COURSE.slope/113+(COURSE.cr-COURSE.par))}
+function ph(hi){return Math.round(ch(hi)*COURSE.allowance/100)}
+function strokes(h,si){if(h>=0){let q=Math.floor(h/18),r=h%18;return q+(si<=r?1:0)}let n=-h,q=Math.floor(n/18),r=n%18;return -(q+(si<=r?1:0))}
+function pts(par,net){let d=par-net;return d>=2?4:d===1?3:d===0?2:d===-1?1:0}
+function renderScore(){let p=state.players[state.active],hand=ph(p.hi),total=0,rows="";for(let i=0;i<18;i++){let h=COURSE.holes[i],g=Number(state.scores[state.active][i]),has=g>0,s=strokes(hand,h.si),n=has?g-s:"",pt=has?pts(h.par,n):0;if(has)total+=pt;rows+=`<tr><td>Hole ${i+1}</td><td>${h.par}</td><td>${h.si}</td><td><input type="number" min="1" max="20" inputmode="numeric" value="${has?g:""}" oninput="setScore(${i},this.value)"></td><td>${has?s:"–"}</td><td>${has?n:"–"}</td><td><b>${has?pt:"–"}</b></td></tr>`}
+scoreArea.innerHTML=`<div class="grid"><div><span class="muted">Course Hcap</span><div class="total">${ch(p.hi)}</div></div><div><span class="muted">Playing Hcap</span><div class="total">${hand}</div></div><div><span class="muted">Stableford</span><div class="total">${total}</div></div><div><span class="muted">Player</span><div class="total">${esc(p.name)}</div></div></div><div class="tableWrap"><table class="scoreTable"><thead><tr><th>Hole</th><th>Par</th><th>SI</th><th>Gross</th><th>Strokes</th><th>Net</th><th>Pts</th></tr></thead><tbody>${rows}</tbody></table></div><div class="actions"><button class="secondary" onclick="clearPlayer()">Clear ${esc(p.name)}</button></div>`}
+function setScore(i,v){state.scores[state.active][i]=v;save();renderScore();renderLeaderboard()}
+function clearPlayer(){state.scores[state.active]=Array(18).fill("");save();renderScore();renderLeaderboard()}
+function newRound(){state.scores=Array.from({length:4},()=>Array(18).fill(""));state.active=0;save();renderTabs();renderScore();renderLeaderboard()}
+function resetPlayers(){state.players=[{name:"Player 1",hi:18},{name:"Player 2",hi:18},{name:"Player 3",hi:18},{name:"Player 4",hi:18}];save();renderPlayers();renderTabs();renderScore();renderLeaderboard()}
+function total(i){let t=0,h=ph(state.players[i].hi);for(let j=0;j<18;j++){let g=Number(state.scores[i][j]);if(g>0){let x=COURSE.holes[j];t+=pts(x.par,g-strokes(h,x.si))}}return t}
+function renderLeaderboard(){leaderboard.innerHTML=state.players.map((p,i)=>({name:p.name||"Player "+(i+1),pts:total(i)})).sort((a,b)=>b.pts-a.pts).map((x,n)=>`<div class="leader"><span>${n+1}. ${esc(x.name)}</span><b>${x.pts} pts</b></div>`).join("")}
+renderPlayers();renderTabs();renderScore();renderLeaderboard();
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v="+VERSION));
 </script></body></html>

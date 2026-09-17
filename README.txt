@@ -1,12 +1,18 @@
-STABLEFORD BUDDY v3
-- Single-screen 18-hole scorecard
-- Gross, net, strokes received and Stableford points
-- Live leaderboard
-- WHS-style Course Handicap / configurable Playing Handicap
-- Up to 4 players
-- Multiple saved courses
-- No round history
-- Mobile-first PWA
+Stableford Buddy v4.0
+Customised for Nevill Golf Club White Tee.
+CR 71.2 | Slope 125 | Par 70 | Playing allowance 95%.
 
-Host the files on HTTPS, open index.html on Android Chrome and choose Add to Home screen / Install app.
-Verify competition-specific handicap allowances against current club/England Golf conditions.
+All 18 holes are pre-configured with the supplied Par/SI values.
+Includes 4-player scorecard, WHS-style Course Handicap, Playing Handicap,
+strokes received, net score, Stableford points and live leaderboard.
+No round history.
+
+Cache-busting:
+- version 4.0.0
+- manifest/start URL ?v=4.0.0
+- service-worker registration ?v=4.0.0
+- cache name stableford-buddy-v4-0-0
+- old Stableford Buddy caches are deleted on activation
+
+Deploy all files together to HTTPS. Replace older files, purge host/CDN cache if available,
+then open the site once and reinstall/add to home screen if the old PWA remains.
