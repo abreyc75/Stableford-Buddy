@@ -1,42 +1,54 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#173b2b"><link rel="manifest" href="manifest.webmanifest?v=4.1.0"><title>Stableford Buddy v4.1</title><style>
-body{font-family:system-ui;margin:0;background:#f4f7f4;color:#17221b}.wrap{max-width:1000px;margin:auto;padding:14px}header{background:#173b2b;color:white;padding:16px;border-radius:0 0 14px 14px}h1{margin:0}.card{background:white;border:1px solid #d8e1da;border-radius:12px;padding:13px;margin:10px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}label{display:block;font-size:12px;font-weight:700;color:#536158}input,select,button{width:100%;box-sizing:border-box;padding:9px;border:1px solid #cbd6ce;border-radius:8px;font:inherit}button{background:#173b2b;color:white;border:0;font-weight:700}.alt{background:#e8eee9;color:#173b2b}.danger{background:#8e3030}.row{display:flex;gap:8px;margin-top:10px}.row>*{flex:1}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;min-width:720px;font-size:12px}th,td{border:1px solid #d8e1da;padding:4px;text-align:center}th{background:#edf2ee}table input{min-width:48px;padding:5px;text-align:center}.course{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:center;border:1px solid #d8e1da;padding:8px;border-radius:8px;margin:6px 0}.pill{display:inline-block;background:#e8eee9;border-radius:20px;padding:4px 8px;margin:3px;font-size:12px}.leader{display:flex;justify-content:space-between;border-bottom:1px solid #e1e7e2;padding:8px 0}@media(max-width:650px){.grid{grid-template-columns:1fr}.row{flex-direction:column}.course{grid-template-columns:1fr 1fr}.course span{grid-column:1/-1}}</style></head><body><div class="wrap">
-<header><h1>Stableford Buddy</h1><small>v4.1 — multiple courses & selectable allowance</small></header>
-<section class="card"><h2>Course</h2><div class="grid">
-<div><label>Course Name</label><input id="name"></div><div><label>Tee</label><input id="tee"></div><div><label>Course Rating (CR)</label><input id="cr" type="number" step=".1"></div><div><label>Slope Rating</label><input id="slope" type="number"></div><div><label>Course Par</label><input id="cpar" type="number"></div><div><label>Playing Allowance</label><select id="allow"><option value="100">100%</option><option value="95">95%</option><option value="90">90%</option><option value="85">85%</option><option value="80">80%</option><option value="75">75%</option><option value="70">70%</option></select></div></div>
-<h3>Hole Par / Stroke Index</h3><div class="scroll"><table><thead><tr id="head"></tr></thead><tbody><tr id="pars"></tr><tr id="sis"></tr></tbody></table></div>
-<div class="row"><button id="save">Save as New Course</button><button id="update" class="alt">Update Selected Course</button><button id="new" class="alt">New Course</button></div>
-<small>Nevill Golf Club / White is the default. All course fields and every hole Par/SI are editable.</small></section>
-<section class="card"><h2>Saved Courses</h2><div id="courseList"></div></section>
-<section class="card"><h2>Players</h2><div id="players"></div><div class="row"><button id="add">Add Player</button><button id="clear" class="alt">New Round / Clear Scores</button></div></section>
-<section class="card"><h2>Live Scorecard</h2><div class="scroll"><table id="score"></table></div></section>
-<section class="card"><h2>Leaderboard</h2><div id="board"></div></section></div>
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b6b3a"><link rel="manifest" href="./manifest.webmanifest?v=4.0.0">
+<title>Stableford Buddy v4</title>
+<style>
+:root{--g:#0b6b3a;--bg:#f3f7f4;--bd:#d7e1da}*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:#17221b}
+header{background:var(--g);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:2}
+h1{font-size:21px;margin:0}.v{font-size:12px;opacity:.8}.ct{font-size:13px;opacity:.9}
+.wrap{max-width:1100px;margin:auto;padding:10px}.card{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:12px;margin-bottom:10px}
+h2{font-size:16px;margin:0 0 9px}.grid,.players{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+label{font-size:12px;font-weight:700;color:#536158}input{width:100%;padding:8px;border:1px solid #c8d4cc;border-radius:9px}
+button{font:inherit;border:0;border-radius:9px;padding:8px 11px;background:var(--g);color:#fff;font-weight:700}
+button.secondary{background:#e8efea;color:#173524}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:8px}.tab{white-space:nowrap;background:#e5eee8;color:#173524}.tab.active{background:var(--g);color:#fff}
+.tableWrap{overflow-x:auto}.scoreTable{width:100%;border-collapse:collapse;min-width:680px}
+.scoreTable th,.scoreTable td{border-bottom:1px solid var(--bd);padding:7px;text-align:center}.scoreTable th{background:#eef4ef;font-size:12px}
+.scoreTable td:first-child,.scoreTable th:first-child{text-align:left}.scoreTable input{width:55px;text-align:center}
+.total{font-size:18px;font-weight:800}.leader{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)}.muted{font-size:12px;color:#68756d}
+.badge{display:inline-block;background:#e8efea;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700;margin:2px}
+@media(max-width:700px){.grid,.players{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<header><h1>🏌️ Stableford Buddy <span class="v">v4</span></h1><div class="ct">Nevill Golf Club · White Tee · Par 70 · CR 71.2 · Slope 125</div></header>
+<div class="wrap">
+<div class="card"><h2>Players</h2><div class="players" id="players"></div></div>
+<div class="card"><h2>Course</h2><span class="badge">Nevill Golf Club</span><span class="badge">White Tee</span><span class="badge">Par 70</span><span class="badge">CR 71.2</span><span class="badge">Slope 125</span><span class="badge">95% allowance</span>
+<div class="actions"><button class="secondary" onclick="newRound()">New Round / Clear Scores</button><button class="secondary" onclick="resetPlayers()">Reset Players</button></div></div>
+<div class="card"><h2>18-hole scorecard</h2><div class="tabs" id="tabs"></div><div id="scoreArea"></div></div>
+<div class="card"><h2>Leaderboard</h2><div id="leaderboard"></div></div>
+<div class="card muted"><strong>Stableford Buddy v4</strong> · Customised for Nevill Golf Club White Tee. No round history is stored.</div>
+</div>
 <script>
-const CK="stableford_buddy_courses_v41",RK="stableford_buddy_round_v41",AK="stableford_buddy_allowance_v41";
-const NEVILL={id:"nevill",name:"Nevill Golf Club",tee:"White",cr:71.2,slope:125,par:70,holes:[[4,9],[5,13],[4,5],[3,15],[4,3],[3,11],[4,1],[4,7],[3,17],[5,18],[5,8],[3,16],[4,4],[4,6],[3,12],[4,2],[4,14],[4,7]]};
-let courses=[],selected="nevill",state={players:[{name:"Player 1",hi:18}],scores:[[]]};
-const copy=x=>JSON.parse(JSON.stringify(x)), esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function CH(h,c){return Math.round((+h||0)*c.slope/113+(c.cr-c.par))}
-function PH(h,c){return Math.round(CH(h,c)*+allow.value/100)}
-function strokes(h,si){let n=Math.abs(h),q=Math.floor(n/18),r=n%18,s=q+(si<=r?1:0);return h<0?-s:s}
-function points(par,net){let d=par-net;return d>=2?4:d==1?3:d==0?2:d==-1?1:0}
-function current(){return copy(courses.find(c=>c.id===selected)||NEVILL)}
-function saveC(){localStorage.setItem(CK,JSON.stringify(courses))}
-function saveR(){localStorage.setItem(RK,JSON.stringify({selected,state}))}
-function editHoles(){head.innerHTML="<th>Hole</th>"+Array.from({length:18},(_,i)=>"<th>"+(i+1)+"</th>").join("");pars.innerHTML="<th>Par</th>"+Array.from({length:18},(_,i)=>'<td><input id="p'+i+'" type="number" min="1" max="10"></td>').join("");sis.innerHTML="<th>SI</th>"+Array.from({length:18},(_,i)=>'<td><input id="s'+i+'" type="number" min="1" max="18"></td>').join("")}
-function setCourse(c){selected=c.id;name.value=c.name;tee.value=c.tee;cr.value=c.cr;slope.value=c.slope;cpar.value=c.par;c.holes.forEach((h,i)=>{document.getElementById("p"+i).value=h[0];document.getElementById("s"+i).value=h[1]});state.scores=state.players.map(()=>[]);render()}
-function readCourse(){let c={id:selected,name:name.value.trim()||"Unnamed Course",tee:tee.value.trim()||"Tee",cr:+cr.value||0,slope:+slope.value||113,par:+cpar.value||72,holes:[]};for(let i=0;i<18;i++)c.holes.push([+document.getElementById("p"+i).value||4,+document.getElementById("s"+i).value||i+1]);return c}
-function renderCourses(){courseList.innerHTML="";courses.forEach(c=>{let d=document.createElement("div");d.className="course";d.innerHTML="<span><b>"+esc(c.name)+"</b> — "+esc(c.tee)+"<br><small>Par "+c.par+" • CR "+c.cr+" • Slope "+c.slope+"</small></span><button class='use'>Use</button>"+(c.id==="nevill"?"<button class='alt' disabled>Default</button>":"<button class='danger del'>Delete</button>");d.querySelector(".use").onclick=()=>setCourse(c);if(c.id!=="nevill")d.querySelector(".del").onclick=()=>{if(confirm("Delete "+c.name+"?")){courses=courses.filter(x=>x.id!==c.id);saveC();if(selected===c.id)selected="nevill";renderCourses();showCourse(courses.find(x=>x.id===selected)||NEVILL)}};courseList.appendChild(d)})}
-function showCourse(c){selected=c.id;name.value=c.name;tee.value=c.tee;cr.value=c.cr;slope.value=c.slope;cpar.value=c.par;c.holes.forEach((h,i)=>{document.getElementById("p"+i).value=h[0];document.getElementById("s"+i).value=h[1]});renderCourses();renderPlayers();renderScore();renderBoard();saveR()}
-function renderPlayers(){players.innerHTML="";state.players.forEach((p,i)=>{let d=document.createElement("div");d.innerHTML="<div class='grid'><div><label>Player "+(i+1)+" Name</label><input class='pn' value='"+esc(p.name)+"'></div><div><label>Handicap Index</label><input class='hi' type='number' step='.1' value='"+p.hi+"'></div></div><div id='ph"+i+"'></div>";d.querySelector(".pn").oninput=e=>{p.name=e.target.value;renderBoard()};d.querySelector(".hi").oninput=e=>{p.hi=+e.target.value||0;render()};players.appendChild(d)});add.disabled=state.players.length>=4}
-function renderScore(){let c=current(),o="<thead><tr><th>Player / HI</th>";for(let i=0;i<18;i++)o+="<th>"+(i+1)+"<br>P"+c.holes[i][0]+" / SI"+c.holes[i][1]+"</th>";o+="<th>Total</th></tr></thead><tbody>";state.players.forEach((p,pi)=>{let ph=PH(p.hi,c),tot=0;o+="<tr><th style='text-align:left'>"+esc(p.name)+"<br><small>HI "+p.hi+" • CH "+CH(p.hi,c)+" • PH "+ph+"</small></th>";for(let i=0;i<18;i++){let g=state.scores[pi]?.[i]??"",detail="";if(g!==""){let st=strokes(ph,c.holes[i][1]),net=+g-st,pt=points(c.holes[i][0],net);tot+=pt;detail="SR "+st+" • Net "+net+" • "+pt+" pts"}o+="<td><input data-p='"+pi+"' data-h='"+i+"' type='number' min='0' max='20' value='"+g+"'><div><small>"+detail+"</small></div></td>"}o+="<td><b>"+tot+"</b></td></tr>"});score.innerHTML=o+"</tbody>";score.querySelectorAll("input[data-p]").forEach(x=>x.oninput=e=>{let i=+e.target.dataset.p,h=+e.target.dataset.h;state.scores[i][h]=e.target.value===""?"":+e.target.value;saveR();renderScore();renderBoard()})}
-function renderBoard(){let c=current();board.innerHTML="";state.players.map((p,i)=>{let ph=PH(p.hi,c),t=0;for(let h=0;h<18;h++){let g=state.scores[i]?.[h];if(g!=="")t+=points(c.holes[h][0],+g-strokes(ph,c.holes[h][1]))}return{p,t}}).sort((a,b)=>b.t-a.t).forEach((x,i)=>board.innerHTML+="<div class='leader'><span>"+(i+1)+". <b>"+esc(x.p.name)+"</b></span><b>"+x.t+" pts</b></div>")}
-function render(){let c=current();allow.value=localStorage.getItem(AK)||"95";state.players.forEach((p,i)=>{let e=document.getElementById("ph"+i);if(e)e.innerHTML="<span class='pill'>Course Handicap: "+CH(p.hi,c)+"</span><span class='pill'>Playing Handicap: "+PH(p.hi,c)+" ("+allow.value+"%)</span>"});renderPlayers();renderScore();renderBoard();renderCourses();saveR()}
-save.onclick=()=>{let c=readCourse();c.id="course-"+Date.now();courses.push(c);selected=c.id;saveC();render()};
-update.onclick=()=>{let c=readCourse(),i=courses.findIndex(x=>x.id===selected);if(i<0){c.id="course-"+Date.now();courses.push(c);selected=c.id}else{c.id=selected;courses[i]=c}saveC();render()};
-new.onclick=()=>{selected="new-"+Date.now();name.value="New Course";tee.value="";cr.value="";slope.value=113;cpar.value=72;for(let i=0;i<18;i++){document.getElementById("p"+i).value=4;document.getElementById("s"+i).value=i+1}state.scores=state.players.map(()=>[]);render()};
-allow.onchange=()=>{localStorage.setItem(AK,allow.value);render()};
-add.onclick=()=>{if(state.players.length<4){state.players.push({name:"Player "+(state.players.length+1),hi:18});state.scores.push([]);render()}};
-clear.onclick=()=>{if(confirm("Clear all player scores?")){state.scores=state.players.map(()=>[]);render()}};
-editHoles();try{courses=JSON.parse(localStorage.getItem(CK)||"[]")}catch(e){courses=[]}if(!courses.some(c=>c.id==="nevill"))courses.unshift(copy(NEVILL));saveC();try{let r=JSON.parse(localStorage.getItem(RK)||"null");if(r){selected=courses.some(c=>c.id===r.selected)?r.selected:"nevill";if(r.state)state=r.state}}catch(e){}if(!Array.isArray(state.players)||!state.players.length)state.players=[{name:"Player 1",hi:18}];while(state.scores.length<state.players.length)state.scores.push([]);showCourse(current());
-if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v=4.1.0"));
+const VERSION="4.0.0",KEY="stableford_buddy_nevill_v4";
+const COURSE={name:"Nevill Golf Club",tee:"White",cr:71.2,slope:125,par:70,allowance:95,holes:[{"par": 4, "si": 9}, {"par": 5, "si": 13}, {"par": 4, "si": 5}, {"par": 3, "si": 15}, {"par": 4, "si": 3}, {"par": 3, "si": 11}, {"par": 4, "si": 1}, {"par": 4, "si": 7}, {"par": 3, "si": 17}, {"par": 5, "si": 18}, {"par": 5, "si": 8}, {"par": 3, "si": 16}, {"par": 4, "si": 4}, {"par": 4, "si": 6}, {"par": 3, "si": 12}, {"par": 4, "si": 2}, {"par": 4, "si": 14}, {"par": 4, "si": 7}]};
+let state=JSON.parse(localStorage.getItem(KEY)||"null")||{players:[{name:"Player 1",hi:18},{name:"Player 2",hi:18},{name:"Player 3",hi:18},{name:"Player 4",hi:18}],active:0,scores:Array.from({length:4},()=>Array(18).fill(""))};
+const save=()=>localStorage.setItem(KEY,JSON.stringify(state));
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function renderPlayers(){players.innerHTML=state.players.map((p,i)=>`<div><label>Player ${i+1}</label><input value="${esc(p.name)}" oninput="state.players[${i}].name=this.value;save();renderTabs();renderLeaderboard()"><label>Handicap Index</label><input type="number" step=".1" value="${p.hi}" oninput="state.players[${i}].hi=parseFloat(this.value)||0;save();renderScore();renderLeaderboard()"></div>`).join("")}
+function renderTabs(){tabs.innerHTML=state.players.map((p,i)=>`<button class="tab ${i===state.active?"active":""}" onclick="state.active=${i};save();renderTabs();renderScore()">${esc(p.name||"Player "+(i+1))}</button>`).join("")}
+function ch(hi){return Math.round(hi*COURSE.slope/113+(COURSE.cr-COURSE.par))}
+function ph(hi){return Math.round(ch(hi)*COURSE.allowance/100)}
+function strokes(h,si){if(h>=0){let q=Math.floor(h/18),r=h%18;return q+(si<=r?1:0)}let n=-h,q=Math.floor(n/18),r=n%18;return -(q+(si<=r?1:0))}
+function pts(par,net){let d=par-net;return d>=2?4:d===1?3:d===0?2:d===-1?1:0}
+function renderScore(){let p=state.players[state.active],hand=ph(p.hi),total=0,rows="";for(let i=0;i<18;i++){let h=COURSE.holes[i],g=Number(state.scores[state.active][i]),has=g>0,s=strokes(hand,h.si),n=has?g-s:"",pt=has?pts(h.par,n):0;if(has)total+=pt;rows+=`<tr><td>Hole ${i+1}</td><td>${h.par}</td><td>${h.si}</td><td><input type="number" min="1" max="20" inputmode="numeric" value="${has?g:""}" oninput="setScore(${i},this.value)"></td><td>${has?s:"–"}</td><td>${has?n:"–"}</td><td><b>${has?pt:"–"}</b></td></tr>`}
+scoreArea.innerHTML=`<div class="grid"><div><span class="muted">Course Hcap</span><div class="total">${ch(p.hi)}</div></div><div><span class="muted">Playing Hcap</span><div class="total">${hand}</div></div><div><span class="muted">Stableford</span><div class="total">${total}</div></div><div><span class="muted">Player</span><div class="total">${esc(p.name)}</div></div></div><div class="tableWrap"><table class="scoreTable"><thead><tr><th>Hole</th><th>Par</th><th>SI</th><th>Gross</th><th>Strokes</th><th>Net</th><th>Pts</th></tr></thead><tbody>${rows}</tbody></table></div><div class="actions"><button class="secondary" onclick="clearPlayer()">Clear ${esc(p.name)}</button></div>`}
+function setScore(i,v){state.scores[state.active][i]=v;save();renderScore();renderLeaderboard()}
+function clearPlayer(){state.scores[state.active]=Array(18).fill("");save();renderScore();renderLeaderboard()}
+function newRound(){state.scores=Array.from({length:4},()=>Array(18).fill(""));state.active=0;save();renderTabs();renderScore();renderLeaderboard()}
+function resetPlayers(){state.players=[{name:"Player 1",hi:18},{name:"Player 2",hi:18},{name:"Player 3",hi:18},{name:"Player 4",hi:18}];save();renderPlayers();renderTabs();renderScore();renderLeaderboard()}
+function total(i){let t=0,h=ph(state.players[i].hi);for(let j=0;j<18;j++){let g=Number(state.scores[i][j]);if(g>0){let x=COURSE.holes[j];t+=pts(x.par,g-strokes(h,x.si))}}return t}
+function renderLeaderboard(){leaderboard.innerHTML=state.players.map((p,i)=>({name:p.name||"Player "+(i+1),pts:total(i)})).sort((a,b)=>b.pts-a.pts).map((x,n)=>`<div class="leader"><span>${n+1}. ${esc(x.name)}</span><b>${x.pts} pts</b></div>`).join("")}
+renderPlayers();renderTabs();renderScore();renderLeaderboard();
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js?v="+VERSION));
 </script></body></html>
