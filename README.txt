@@ -1,18 +1,7 @@
-Stableford Buddy v4.0
-Customised for Nevill Golf Club White Tee.
-CR 71.2 | Slope 125 | Par 70 | Playing allowance 95%.
+Stableford Buddy v4.1
 
-All 18 holes are pre-configured with the supplied Par/SI values.
-Includes 4-player scorecard, WHS-style Course Handicap, Playing Handicap,
-strokes received, net score, Stableford points and live leaderboard.
-No round history.
+Changes: selectable allowance 100/95/90/85/80/75/70%; editable Course Par, CR, Slope and all Par/SI; multiple saved courses; Nevill defaults preserved; no round history.
 
-Cache-busting:
-- version 4.0.0
-- manifest/start URL ?v=4.0.0
-- service-worker registration ?v=4.0.0
-- cache name stableford-buddy-v4-0-0
-- old Stableford Buddy caches are deleted on activation
+Nevill default: White, CR 71.2, Slope 125, Par 70. Hole Par/SI: 1 4/9, 2 5/13, 3 4/5, 4 3/15, 5 4/3, 6 3/11, 7 4/1, 8 4/7, 9 3/17, 10 5/18, 11 5/8, 12 3/16, 13 4/4, 14 4/6, 15 3/12, 16 4/2, 17 4/14, 18 4/7.
 
-Deploy all files together to HTTPS. Replace older files, purge host/CDN cache if available,
-then open the site once and reinstall/add to home screen if the old PWA remains.
+Replace the previous files on your HTTPS host and purge host/CDN cache. If the old installed PWA remains, remove it and add the site again.

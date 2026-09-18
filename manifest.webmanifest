@@ -1,5 +1,1 @@
-{
-"name":"Stableford Buddy - Nevill Golf Club","short_name":"Stableford Buddy","version":"4.0.0",
-"start_url":"./index.html?v=4.0.0","display":"standalone","background_color":"#f3f7f4",
-"theme_color":"#0b6b3a","description":"Stableford calculator for Nevill Golf Club White Tee"
-}
+{"name":"Stableford Buddy","short_name":"Stableford Buddy","start_url":"./index.html?v=4.1.0","display":"standalone","background_color":"#f4f7f4","theme_color":"#173b2b","description":"Mobile Stableford calculator with multiple saved courses."}
