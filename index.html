@@ -47,10 +47,10 @@ const $=id=>document.getElementById(id);
 const COURSE_KEY='stableford_buddy_courses_v42',ROUND_KEY='stableford_buddy_round_v42',ALLOW_KEY='stableford_buddy_allowance_v42';
 const nevill={id:'nevill',name:'Nevill Golf Club',tee:'White',cr:71.2,slope:125,par:70,holes:[[4,9],[5,13],[4,5],[3,15],[4,3],[3,11],[4,1],[4,7],[3,17],[5,18],[5,8],[3,16],[4,4],[4,6],[3,12],[4,2],[4,14],[4,7]]};
 const clone=x=>JSON.parse(JSON.stringify(x));
-let courses=loadCourses(),selectedId='nevill',currentCourse=clone(neville);
+let courses=loadCourses(),selectedId='nevill',currentCourse=clone(nevill);
 let state=loadRound();
 
-function loadCourses(){try{let x=JSON.parse(localStorage.getItem(COURSE_KEY));if(Array.isArray(x)&&x.length){if(!x.some(c=>c.id==='nevill'))x.unshift(clone(neville));return x}}catch(e){}return[clone(neville)]}
+function loadCourses(){try{let x=JSON.parse(localStorage.getItem(COURSE_KEY));if(Array.isArray(x)&&x.length){if(!x.some(c=>c.id==='nevill'))x.unshift(clone(nevill));return x}}catch(e){}return[clone(nevill)]}
 function saveCourses(){localStorage.setItem(COURSE_KEY,JSON.stringify(courses))}
 function loadRound(){try{let x=JSON.parse(localStorage.getItem(ROUND_KEY));if(x&&Array.isArray(x.players))return x}catch(e){}return{players:[{name:'Player 1',hi:0,scores:Array(18).fill('')}]}}
 function saveRound(){localStorage.setItem(ROUND_KEY,JSON.stringify(state))}
