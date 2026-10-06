@@ -1,1 +1,1 @@
-Stableford Buddy v4.2 — fixed course selector/editor. Nevill defaults retained. Playing allowance 100/95/90/85/80/75/70%. Editable Course Par, CR, Slope and all 18 Par/SI values. Save/update/delete courses. No round history.
+Stableford Buddy v4.2.1 - targeted update from working v4.2. Course fields remain editable; allowance 100/95/90/85/80/75/70; multiple courses; no round history; cache/local-storage bumped.
