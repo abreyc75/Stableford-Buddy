@@ -1,1 +1,1 @@
-Stableford Buddy v4.2.1 - targeted update from working v4.2. Course fields remain editable; allowance 100/95/90/85/80/75/70; multiple courses; no round history; cache/local-storage bumped.
+Stableford Buddy v4.2.1 FIXED. Corrects the startup ReferenceError caused by using neville instead of nevill. Nevill Golf Club defaults retained: White, CR 71.2, Slope 125, Par 70, all 18 Par/SI values.

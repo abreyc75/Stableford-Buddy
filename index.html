@@ -18,7 +18,7 @@ button{border:0;border-radius:9px;padding:10px 12px;background:#17613f;color:#ff
 table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 5px;border-bottom:1px solid #e1e5e2;text-align:left}
 @media(min-width:650px){.coursebar{grid-template-columns:2fr 1fr 1fr 1fr}.scores{grid-template-columns:repeat(18,1fr)}}
 </style></head><body>
-<header><h1>Stableford Buddy</h1><small>Version 4.2.1 • Course editor</small></header><main>
+<header><h1>Stableford Buddy</h1><small>Version 4.2.1 • Fixed</small></header><main>
 
 <section class="card"><h2>Course</h2>
 <div class="coursebar">
@@ -47,10 +47,10 @@ const $=id=>document.getElementById(id);
 const COURSE_KEY='stableford_buddy_courses_v421',ROUND_KEY='stableford_buddy_round_v421',ALLOW_KEY='stableford_buddy_allowance_v421';
 const nevill={id:'nevill',name:'Nevill Golf Club',tee:'White',cr:71.2,slope:125,par:70,holes:[[4,9],[5,13],[4,5],[3,15],[4,3],[3,11],[4,1],[4,7],[3,17],[5,18],[5,8],[3,16],[4,4],[4,6],[3,12],[4,2],[4,14],[4,7]]};
 const clone=x=>JSON.parse(JSON.stringify(x));
-let courses=loadCourses(),selectedId='nevill',currentCourse=clone(neville);
+let courses=loadCourses(),selectedId='nevill',currentCourse=clone(nevill);
 let state=loadRound();
 
-function loadCourses(){try{let x=JSON.parse(localStorage.getItem(COURSE_KEY));if(Array.isArray(x)&&x.length){if(!x.some(c=>c.id==='nevill'))x.unshift(clone(neville));return x}}catch(e){}return[clone(neville)]}
+function loadCourses(){try{let x=JSON.parse(localStorage.getItem(COURSE_KEY));if(Array.isArray(x)&&x.length){if(!x.some(c=>c.id==='nevill'))x.unshift(clone(nevill));return x}}catch(e){}return[clone(nevill)]}
 function saveCourses(){localStorage.setItem(COURSE_KEY,JSON.stringify(courses))}
 function loadRound(){try{let x=JSON.parse(localStorage.getItem(ROUND_KEY));if(x&&Array.isArray(x.players))return x}catch(e){}return{players:[{name:'Player 1',hi:0,scores:Array(18).fill('')}]}}
 function saveRound(){localStorage.setItem(ROUND_KEY,JSON.stringify(state))}
